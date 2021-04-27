@@ -30,21 +30,21 @@ endif
 # Console parameters
 CONSOLE_DEV = 0
 CONSOLE_SPEED = 115200
-# SERIAL_CONSOLE_ENABLE="no"
 
 #Enable UEFI support
 UEFI_ENABLE = yes
 
 # Set Linux kernel version
-# LINUX_VERSION		= 5.4
-# LINUX_MINOR_VERSION	= 114
+LINUX_VERSION		= 4.9
+LINUX_MINOR_VERSION	= 95
 
 # Specify uClibc version
 # UCLIBC_VERSION = 0.9.32.1
 # GCC_VERSION = 9.3.1
 
-#Extra kernel command line
-EXTRA_CMDLINE_LINUX ?= nomodeset debug
+# Extra kernel command line
+# EXTRA_CMDLINE_LINUX ?= 
+IPMITOOL_ENABLE ?= yes
 
 #-------------------------------------------------------------------------------
 #
