@@ -16,15 +16,11 @@ config_ethmgmt_static() {
 
     case $intf in
     eth0)
-        ip addr add ${chassis_mgmt_ip_addr}/$chassis_mgmt_ip_prefix dev $intf || {
-            log_failure_msg "Problems setting IPv4 addr: ${intf}: ${chassis_mgmt_ip_addr}/$chassis_mgmt_ip_prefix"
-            return 1
-        }
-
+        cmd_run ip -f inet addr flush dev $intf
+        cmd_run ip addr add ${chassis_mgmt_ip_addr}/$chassis_mgmt_ip_prefix dev $intf
         log_console_msg "${intf}: Using static IP config: ${chassis_mgmt_ip_addr}/$chassis_mgmt_ip_prefix, intf=$intf"
         ;;
     *)
-        ifconfig $intf down
         return 0
         ;;
     esac
