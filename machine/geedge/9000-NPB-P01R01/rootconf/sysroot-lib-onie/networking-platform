@@ -1,0 +1,34 @@
+config_ethmgmt_static() {
+    local intf=$1
+    shift
+
+    # eth0 -- BASE#1
+    # eth1 -- BASE#2
+    # eth2 -- Front GE#1
+    # eth3 -- Front GE#2
+
+    # For BASE#1 BASE#2, we use static IP caculated from IPMI address.
+    # For Front GE#1, GE#2, use DHCPv4
+
+    local chassis_mgmt_id=$(ipmitool picmg addrinfo | grep "Hardware Address" | sed 's/^Hardware Address.*0x4\(.*\)/\1/' | awk '{print $1+16'})
+    local chassis_mgmt_ip_addr="10.254.${chassis_mgmt_id}.1"
+    local chassis_mgmt_ip_prefix="255.255.0.0"
+
+    case $intf in
+    eth0)
+        ip addr add ${chassis_mgmt_ip_addr}/$chassis_mgmt_ip_prefix dev $intf || {
+            log_failure_msg "Problems setting IPv4 addr: ${intf}: ${chassis_mgmt_ip_addr}/$chassis_mgmt_ip_prefix"
+            return 1
+        }
+
+        log_console_msg "${intf}: Using static IP config: ${chassis_mgmt_ip_addr}/$chassis_mgmt_ip_prefix, intf=$intf"
+        ;;
+    *)
+        ifconfig $intf down
+        return 0
+        ;;
+    esac
+
+    # other interface, do nothing and disable DHCPv4
+    return 0
+}

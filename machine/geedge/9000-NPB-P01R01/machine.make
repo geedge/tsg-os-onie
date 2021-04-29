@@ -31,8 +31,9 @@ endif
 CONSOLE_DEV = 0
 CONSOLE_SPEED = 115200
 
-#Enable UEFI support
+# Enable UEFI support
 UEFI_ENABLE = yes
+SKIP_ETHMGMT_MACS = yes
 
 # Set Linux kernel version
 LINUX_VERSION		= 4.9
@@ -43,7 +44,7 @@ LINUX_MINOR_VERSION	= 95
 # GCC_VERSION = 9.3.1
 
 # Extra kernel command line
-# EXTRA_CMDLINE_LINUX ?= 
+EXTRA_CMDLINE_LINUX ?= biosdevname=0 net.ifnames=1
 IPMITOOL_ENABLE ?= yes
 
 #-------------------------------------------------------------------------------
