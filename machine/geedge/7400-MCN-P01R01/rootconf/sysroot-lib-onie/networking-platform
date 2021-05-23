@@ -1,0 +1,82 @@
+pf_setup_mcn0()
+{
+    cmd_run ifconfig ens1 up
+    cmd_run modprobe 8021q
+    cmd_run vconfig add ens1 100
+    cmd_run vconfig set_flag ens1.100 1 1 
+    cmd_run ifconfig ens1.100 192.168.100.1 netmask 255.255.255.0 up
+    cmd_run sleep 1
+    log_console_msg "MCN0 : Using static IP config: ens1.100 192.168.100.1"
+}
+
+pf_setup_mcn1()
+{
+    cmd_run ifconfig ens1 up
+    cmd_run vconfig add ens1 100
+    cmd_run vconfig set_flag ens1.100 1 1
+    cmd_run ifconfig ens1.100 192.168.100.2 netmask 255.255.255.0 up
+    cmd_run sleep 1
+    log_console_msg "MCN1 : Using static IP config: ens1.100 192.168.100.2"
+}
+
+pf_setup_mcn2()
+{
+    cmd_run ifconfig ens8 up
+    cmd_run vconfig add ens8 100
+    cmd_run vconfig set_flag ens8.100 1 1
+    cmd_run ifconfig ens8.100 192.168.100.3 netmask 255.255.255.0 up
+    cmd_run sleep 1
+    log_console_msg "MCN2 : Using static IP config: ens8.100 192.168.100.3"
+}
+
+pf_setup_mcn3()
+{
+    cmd_run ifconfig ens8 up
+    cmd_run vconfig add ens8 100
+    cmd_run vconfig set_flag ens8.100 1 1
+    cmd_run ifconfig ens8.100 192.168.100.4 netmask 255.255.255.0 up
+    cmd_run sleep 1
+    log_console_msg "MCN3 : Using static IP config: ens8.100 192.168.100.4"
+}
+
+config_chassis_mgmt()
+{
+    local chassis_mgmt_id=$(ipmitool raw 0x2e 0x32 0x13 0x5f 0x00 | awk '{print $NF}')
+    case ${chassis_mgmt_id} in
+    90)
+        pf_setup_mcn0
+        ;;
+    80)
+        pf_setup_mcn1
+        ;;
+    98)
+        pf_setup_mcn2
+        ;;
+    88)
+        pf_setup_mcn3
+        ;;
+    *)
+        log_console_msg "MCNX: Using ipmitool get unknown mcn id"
+        ;;
+    esac
+}
+
+config_ethmgmt_static() {
+    local intf=$1
+    shift
+    
+    case $intf in
+    ens1)
+        config_chassis_mgmt
+        ;;
+    ens8)
+        config_chassis_mgmt
+        ;;
+    *)
+        return 0
+        ;;
+    esac
+
+    # other interface, do nothing and disable DHCPv4
+    return 0
+}
