@@ -10,7 +10,11 @@ config_ethmgmt_static() {
     # For BASE#1 BASE#2, we use static IP caculated from IPMI address.
     # For Front GE#1, GE#2, use DHCPv4
 
-    local chassis_mgmt_id=$(ipmitool picmg addrinfo | grep "Hardware Address" | sed 's/^Hardware Address.*0x4\(.*\)/\1/' | awk '{print $1+16'})
+    local ipmi_output=$(ipmitool picmg addrinfo)
+    local sub_str=${ipmi_output:22:1}
+    local hex_str=0x$sub_str
+    local ip_num=$(printf %d $hex_str)
+    local chassis_mgmt_id=$(($ip_num+16))
     local chassis_mgmt_ip_addr="10.254.${chassis_mgmt_id}.1"
     local chassis_mgmt_ip_prefix="255.255.0.0"
 
