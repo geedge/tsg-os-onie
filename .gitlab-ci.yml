@@ -1,0 +1,49 @@
+stages:
+  - build
+
+image: "git.mesalab.cn:7443/mesa_platform/build-env:onie-build-env"
+variables:
+  GIT_STRATEGY: "clone"
+
+.build_by_travis:
+  script:
+    - env | sort
+    - git config --global user.email "build@example.com"
+    - git config --global user.name "build"
+    - whoami
+    - cd ${CI_PROJECT_DIR}/build-config
+    - make -j4 MACHINEROOT=../machine/geedge MACHINE=${MACHINE_NAME} ONIE_RELEASE_TAG=${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA} all
+    - ls -ahl ${CI_PROJECT_DIR}/build/images/
+    - cd ${CI_PROJECT_DIR}/build/
+    - tar -zcvf ${CI_PROJECT_DIR}/${IMAGE_NAME} images/
+    - ls -ahl ${CI_PROJECT_DIR}/
+    - python3 /home/build/file_upload_tools.py ${PULP3_FILE_REPO_NAME} ${PULP3_FILE_DIST_NAME} ${CI_PROJECT_DIR}/${IMAGE_NAME}
+  tags:
+    - tsg-os-installer
+ 
+release-TSG-7400-ONIE:
+  stage: build
+  extends: .build_by_travis
+  variables:
+    PULP3_FILE_REPO_NAME: onie-os-images-release
+    PULP3_FILE_DIST_NAME: onie-os-images-release
+    MACHINE_NAME: 7400-MCN-P01R01
+    PROJECT_DIR: "/builds/tsg/tsg-os-onie"
+    IMAGE_NAME: TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz
+  only:
+    - tags
+  except:
+    - /^rel-.*$/i
+
+release-TSG-9140-ONIE:
+  stage: build
+  extends: .build_by_travis
+  variables:
+    PULP3_FILE_REPO_NAME: onie-os-images-release
+    PULP3_FILE_DIST_NAME: onie-os-images-release
+    MACHINE_NAME: 9000-NPB-P01R01
+    IMAGE_NAME: TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz
+  only:
+    - tags
+  except:
+    - /^rel-.*$/i
