@@ -1,0 +1,44 @@
+stages:
+  - build
+
+image: "git.mesalab.cn:7443/mesa_platform/build-env:onie-build-env"
+variables:
+  GIT_STRATEGY: "clone"
+
+.build_by_travis:
+  script:
+    - env | sort
+    - git config --global user.email "build@example.com"
+    - git config --global user.name "build"
+    - whoami
+    - cd /builds/tsg/tsg-os-onie/build-config
+    - make -j4 MACHINEROOT=../machine/geedge MACHINE=${MACHINE_NAME} all
+    - pwd
+    - ls -ahl
+    - ls -ahl /builds/tsg/tsg-os-onie/
+    - ls -ahl /builds/tsg/tsg-os-onie/build/
+    - ls -ahl /builds/tsg/tsg-os-onie/build/images/
+    - tar -zcvf /builds/tsg/tsg-os-onie/TSG-ONIE-${MACHINE_NAME}-$CI_COMMIT_REF_NAME.tar.gz /builds/tsg/tsg-os-onie/build/images/
+    - python3 /builds/tsg/tsg-os-onie/ci/file_upload_tools.py ${PULP3_FILE_REPO_NAME} ${PULP3_FILE_DIST_NAME} /builds/tsg/tsg-os-onie//TSG-OINE-*.tar.gz
+  tags:
+    - share
+ 
+develop-build-7400:
+  stage: build
+  extends: .build_by_travis
+  variables:
+    PULP3_FILE_REPO_NAME: onie-os-images
+    PULP3_FILE_DIST_NAME: onie-os-images
+    MACHINE_NAME: 7400-MCN-P01R01
+  only:
+    - /^dev-.*$/i
+
+develop-build-9140:
+  stage: build
+  extends: .build_by_travis
+  variables:
+    PULP3_FILE_REPO_NAME: onie-os-images
+    PULP3_FILE_DIST_NAME: onie-os-images
+    MACHINE_NAME: 9000-NPB-P01R01
+  only:
+    - /^dev-.*$/i
