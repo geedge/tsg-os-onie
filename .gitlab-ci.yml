@@ -15,15 +15,11 @@ variables:
     #- make -j4 MACHINEROOT=../machine/geedge MACHINE=${MACHINE_NAME} all
     - mkdir -p ${CI_PROJECT_DIR}/build/images/
     - echo "test" >> ${CI_PROJECT_DIR}/build/images/test.log
-    - pwd
-    - ls -ahl ${CI_PROJECT_DIR}/
-    - ls -ahl ${CI_PROJECT_DIR}/build/
     - ls -ahl ${CI_PROJECT_DIR}/build/images/
-    - echo $LSB_RELEASE_TAG
     - cd ${CI_PROJECT_DIR}/build/
-    - tar -zcvf ${CI_PROJECT_DIR}/TSG-ONIE-${MACHINE_NAME}-$CI_COMMIT_REF_NAME-$LSB_RELEASE_TAG.tar.gz images/
+    - tar -zcvf ${CI_PROJECT_DIR}/${IMAGE_NAME} images/
     - ls -ahl ${CI_PROJECT_DIR}/
-    - python3 /home/build/file_upload_tools.py ${PULP3_FILE_REPO_NAME} ${PULP3_FILE_DIST_NAME} ${CI_PROJECT_DIR}/TSG-ONIE-${MACHINE_NAME}-$CI_COMMIT_REF_NAME-$LSB_RELEASE_TAG.tar.gz
+    - python3 /home/build/file_upload_tools.py ${PULP3_FILE_REPO_NAME} ${PULP3_FILE_DIST_NAME} ${CI_PROJECT_DIR}/${CI_PROJECT_DIR}/${IMAGE_NAME}
   tags:
     - tsg-os-installer
  
@@ -35,7 +31,10 @@ release-TSG-7400-ONIE:
     PULP3_FILE_DIST_NAME: onie-os-images-release
     MACHINE_NAME: 7400-MCN-P01R01
     PROJECT_DIR: "/builds/tsg/tsg-os-onie"
+    IMAGE_NAME: TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz
   only:
+    - tags
+  except:
     - /^rel-.*$/i
 
 release-TSG-9140-ONIE:
@@ -45,5 +44,8 @@ release-TSG-9140-ONIE:
     PULP3_FILE_REPO_NAME: onie-os-images-release
     PULP3_FILE_DIST_NAME: onie-os-images-release
     MACHINE_NAME: 9000-NPB-P01R01
+    IMAGE_NAME: TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz
   only:
+    - tags
+  except:
     - /^rel-.*$/i
