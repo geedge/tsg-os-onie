@@ -13,6 +13,7 @@ variables:
     - whoami
     - cd ${PROJECT_DIR}/build-config
     #- make -j4 MACHINEROOT=../machine/geedge MACHINE=${MACHINE_NAME} all
+    - mkdir -p ${PROJECT_DIR}/build/images/
     - echo "test" >> ${PROJECT_DIR}/build/images/test.log
     - pwd
     - ls -ahl ${PROJECT_DIR}/
