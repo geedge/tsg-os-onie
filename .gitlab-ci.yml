@@ -11,34 +11,34 @@ variables:
     - git config --global user.email "build@example.com"
     - git config --global user.name "build"
     - whoami
-    - cd /builds/tsg/tsg-os-onie/build-config
+    - cd ${PROJECT_DIR}/build-config
     - make -j4 MACHINEROOT=../machine/geedge MACHINE=${MACHINE_NAME} all
     - pwd
-    - ls -ahl
-    - ls -ahl /builds/tsg/tsg-os-onie/
-    - ls -ahl /builds/tsg/tsg-os-onie/build/
-    - ls -ahl /builds/tsg/tsg-os-onie/build/images/
-    - tar -zcvf /builds/tsg/tsg-os-onie/TSG-ONIE-${MACHINE_NAME}-$CI_COMMIT_REF_NAME.tar.gz /builds/tsg/tsg-os-onie/build/images/
-    - python3 /builds/tsg/tsg-os-onie/ci/file_upload_tools.py ${PULP3_FILE_REPO_NAME} ${PULP3_FILE_DIST_NAME} /builds/tsg/tsg-os-onie//TSG-OINE-*.tar.gz
+    - ls -ahl ${PROJECT_DIR}/
+    - ls -ahl ${PROJECT_DIR}/build/
+    - ls -ahl ${PROJECT_DIR}/build/images/
+    - tar -zcvf ${PROJECT_DIR}/TSG-ONIE-${MACHINE_NAME}-$CI_COMMIT_REF_NAME.tar.gz ${PROJECT_DIR}/build/images/
+    - python3 ${PROJECT_DIR}/ci/file_upload_tools.py ${PULP3_FILE_REPO_NAME} ${PULP3_FILE_DIST_NAME} ${PROJECT_DIR}/TSG-OINE-*.tar.gz
   tags:
-    - share
+    - tsg-os-installer
  
-develop-build-7400:
+release-TSG-7400-ONIE:
   stage: build
   extends: .build_by_travis
   variables:
-    PULP3_FILE_REPO_NAME: onie-os-images
-    PULP3_FILE_DIST_NAME: onie-os-images
+    PULP3_FILE_REPO_NAME: onie-os-images-release
+    PULP3_FILE_DIST_NAME: onie-os-images-release
     MACHINE_NAME: 7400-MCN-P01R01
+    PROJECT_DIR: "/builds/tsg/tsg-os-onie"
   only:
-    - /^dev-.*$/i
+    - /^rel-.*$/i
 
-develop-build-9140:
+release-TSG-9140-ONIE:
   stage: build
   extends: .build_by_travis
   variables:
-    PULP3_FILE_REPO_NAME: onie-os-images
-    PULP3_FILE_DIST_NAME: onie-os-images
+    PULP3_FILE_REPO_NAME: onie-os-images-release
+    PULP3_FILE_DIST_NAME: onie-os-images-release
     MACHINE_NAME: 9000-NPB-P01R01
   only:
-    - /^dev-.*$/i
+    - /^rel-.*$/i
