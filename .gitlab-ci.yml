@@ -11,7 +11,6 @@ variables:
     - git config --global user.email "build@example.com"
     - git config --global user.name "build"
     - whoami
-    - apt-get install -y python3
     - cd ${PROJECT_DIR}/build-config
     #- make -j4 MACHINEROOT=../machine/geedge MACHINE=${MACHINE_NAME} all
     - mkdir -p ${PROJECT_DIR}/build/images/
