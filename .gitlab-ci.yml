@@ -22,7 +22,7 @@ variables:
     - echo $LSB_RELEASE_TAG
     - tar -zcvf ${PROJECT_DIR}/TSG-ONIE-${MACHINE_NAME}-$CI_COMMIT_REF_NAME-$LSB_RELEASE_TAG.tar.gz ${PROJECT_DIR}/build/images/
     - ls -ahl ${PROJECT_DIR}/
-    - python3 /home/build/file_upload_tools.py ${PULP3_FILE_REPO_NAME} ${PULP3_FILE_DIST_NAME} ${PROJECT_DIR}/TSG-OINE-*.tar.gz
+    - python3 /home/build/file_upload_tools.py ${PULP3_FILE_REPO_NAME} ${PULP3_FILE_DIST_NAME} ${PROJECT_DIR}/TSG-ONIE-${MACHINE_NAME}-$CI_COMMIT_REF_NAME-$LSB_RELEASE_TAG.tar.gz
   tags:
     - tsg-os-installer
  
