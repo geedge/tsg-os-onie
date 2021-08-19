@@ -11,6 +11,7 @@ variables:
     - git config --global user.email "build@example.com"
     - git config --global user.name "build"
     - whoami
+    - apt-get install -y python3
     - cd ${PROJECT_DIR}/build-config
     #- make -j4 MACHINEROOT=../machine/geedge MACHINE=${MACHINE_NAME} all
     - mkdir -p ${PROJECT_DIR}/build/images/
@@ -21,7 +22,7 @@ variables:
     - ls -ahl ${PROJECT_DIR}/build/images/
     - tar -zcvf ${PROJECT_DIR}/TSG-ONIE-${MACHINE_NAME}-$CI_COMMIT_REF_NAME.tar.gz ${PROJECT_DIR}/build/images/
     - ls -ahl ${PROJECT_DIR}/
-    - python ${PROJECT_DIR}/ci/file_upload_tools.py ${PULP3_FILE_REPO_NAME} ${PULP3_FILE_DIST_NAME} ${PROJECT_DIR}/TSG-OINE-*.tar.gz
+    - python3 ${PROJECT_DIR}/ci/file_upload_tools.py ${PULP3_FILE_REPO_NAME} ${PULP3_FILE_DIST_NAME} ${PROJECT_DIR}/TSG-OINE-*.tar.gz
   tags:
     - tsg-os-installer
  
