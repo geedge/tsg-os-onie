@@ -17,7 +17,8 @@ variables:
     - cd ${CI_PROJECT_DIR}/build/
     - tar -zcvf ${CI_PROJECT_DIR}/${IMAGE_NAME} images/
     - ls -ahl ${CI_PROJECT_DIR}/
-    - python3 /home/build/file_upload_tools.py ${PULP3_FILE_REPO_NAME} ${PULP3_FILE_DIST_NAME} ${CI_PROJECT_DIR}/${IMAGE_NAME}
+    - python3 /home/build/file_upload_tools_to_share_repo.py ${FILE_REPO_PATH} ${CI_PROJECT_DIR}/${IMAGE_NAME}
+
   tags:
     - tsg-os-installer
  
@@ -30,6 +31,7 @@ release-TSG-7400-ONIE:
     MACHINE_NAME: 7400-MCN-P01R01
     PROJECT_DIR: "/builds/tsg/tsg-os-onie"
     IMAGE_NAME: TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz
+    FILE_REPO_PATH: install/release/onie-os-images
   only:
     - tags
   except:
@@ -43,6 +45,7 @@ release-TSG-9140-ONIE:
     PULP3_FILE_DIST_NAME: onie-os-images-release
     MACHINE_NAME: 9000-NPB-P01R01
     IMAGE_NAME: TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz
+    FILE_REPO_PATH: install/release/onie-os-images
   only:
     - tags
   except:
