@@ -32,6 +32,10 @@ release-TSG-7400-ONIE:
     PROJECT_DIR: "/builds/tsg/tsg-os-onie"
     IMAGE_NAME: TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz
     FILE_REPO_PATH: install/release/onie-os-images
+  artifacts:
+    name: "TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz"
+    paths:
+      - ${CI_PROJECT_DIR}/*.tar.gz
   only:
     - tags
   except:
@@ -46,7 +50,25 @@ release-TSG-9140-ONIE:
     MACHINE_NAME: 9000-NPB-P01R01
     IMAGE_NAME: TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz
     FILE_REPO_PATH: install/release/onie-os-images
+  artifacts:
+    name: "TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz"
+    paths:
+      - ${CI_PROJECT_DIR}/*.tar.gz
   only:
     - tags
   except:
     - /^rel-.*$/i
+
+release-TSG-X:
+  stage: build
+  extends: .build_by_travis
+  variables:
+    PULP3_FILE_REPO_NAME: onie-os-images-release
+    PULP3_FILE_DIST_NAME: onie-os-images-release
+    MACHINE_NAME: TSG-X
+    IMAGE_NAME: TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz
+    FILE_REPO_PATH: install/release/onie-os-images
+  artifacts:
+    name: "TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz"
+    paths:
+      - ${CI_PROJECT_DIR}/*.tar.gz

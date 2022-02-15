@@ -1,0 +1,10 @@
+config_ethmgmt_static() {
+    log_console_msg "==================== TSG-X TEST ===================="
+    local msg=$(lspci -k)
+    log_console_msg "====================  msg: ${msg}"
+
+    local env=$(env | sort)
+    log_console_msg "====================  env: ${msg}"
+
+    return 0
+}
