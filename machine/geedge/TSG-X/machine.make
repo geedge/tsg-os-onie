@@ -45,7 +45,7 @@ LINUX_MINOR_VERSION	= 95
 # GCC_VERSION = 9.3.1
 
 # Extra kernel command line
-EXTRA_CMDLINE_LINUX ?= biosdevname=0 net.ifnames=1
+EXTRA_CMDLINE_LINUX ?= debug
 IPMITOOL_ENABLE ?= yes
 
 #-------------------------------------------------------------------------------
