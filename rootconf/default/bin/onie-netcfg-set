@@ -1,0 +1,127 @@
+#!/bin/sh
+
+function usage() {
+    echo "$(basename $0) interface address netmask [gateway]"
+    cat <<EOF
+Configuring the IPv4 Network of the ONIE Management Port.
+
+    Example: onie-netcfg-set eth0 192.168.100.10 255.255.255.0 192.168.100.1
+    Example: onie-netcfg-set eth1 192.168.200.10 255.255.255.0
+EOF
+}
+
+function check_ipv4_foramt() {
+    IP=$1
+
+    VALID_CHECK_STEP1=$(echo $IP | awk -F . '$1<=255 && $2<=255 && $3<=255 && $4<=255 {print "yes"}')
+    VALID_CHECK_STEP2=$(echo $IP | grep -E "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
+    if [ ${VALID_CHECK_STEP1:-no} == "yes" ] && [ -n "${VALID_CHECK_STEP2}" ]; then
+        return 0
+    else
+        echo "Invalid IPv4 Address Format: $IP."
+        return 1
+    fi
+}
+
+function check_interface() {
+    eth=$1
+
+    if ifconfig $eth >/dev/null; then
+        return 0
+    else
+        echo "Network Interface $eth not exist."
+        return 1
+    fi
+}
+
+function check_cmd_args() {
+    interface=$1
+    address=$2
+    netmask=$3
+    gateway=$4
+
+    # check network interface, interface is required
+    if [ -z "$interface" ]; then
+        echo "Network Interface not config."
+        return 1
+    fi
+
+    check_interface $interface
+    ret=$?
+    if [ "$ret" == 1 ]; then
+        usage
+        exit 1
+    fi
+
+    # check ipv4 network address, address is required
+    if [ -z "$address" ]; then
+        echo "IPv4 Network Address not config."
+        return 1
+    fi
+
+    check_ipv4_foramt $address
+    ret=$?
+    if [ "$ret" == 1 ]; then
+        return 1
+    fi
+
+    # check ipv4 network mask, mask is required
+    if [ -z "$netmask" ]; then
+        echo "IPv4 Network Mask not config."
+        return 1
+    fi
+
+    check_ipv4_foramt $netmask
+    ret=$?
+    if [ "$ret" == 1 ]; then
+        return 1
+    fi
+
+    # check ipv4 network gateway, gateway is optioned
+    if [ -z "$gateway" ]; then
+        return 0
+    fi
+
+    check_ipv4_foramt $gateway
+    ret=$?
+    if [ "$ret" == 1 ]; then
+        return 1
+    fi
+
+    return 0
+}
+
+ret=0
+interface=$1
+address=$2
+netmask=$3
+gateway=$4
+
+check_cmd_args $interface $address $netmask $gateway
+ret=$?
+if [ "$ret" == 1 ]; then
+    usage
+    exit 1
+fi
+
+# save config to file
+if [ -r /mnt/onie-boot/grub/grubenv ]; then
+    # Plan A: If the current network interface has been configured with an IP, delete it
+    # sed -i "/::$interface$/d" /mnt/onie-boot/grub/grubenv
+
+    # Plan B: Delete all config info
+    sed -i "/ONIE_NETWORK_CONFIG/d" /mnt/onie-boot/grub/grubenv
+else
+    touch /mnt/onie-boot/grub/grubenv
+fi
+
+curr_time=$(date)
+echo "# ONIE_NETWORK_CONFIG config date: $curr_time, content: $address::$gateway:$netmask::$interface" >>/mnt/onie-boot/grub/grubenv
+echo "ONIE_NETWORK_CONFIG=ip=$address::$gateway:$netmask::$interface" >>/mnt/onie-boot/grub/grubenv
+
+#ifconfig $interface up
+#ifconfig $interface $address netmask $netmask
+#route add default gw $gateway
+
+echo "ONIE Network config Success !!!"
+echo "Please reboot to take effect."

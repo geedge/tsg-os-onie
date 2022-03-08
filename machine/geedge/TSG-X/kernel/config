@@ -288,7 +288,6 @@ CONFIG_USB_HID=y
 # CONFIG_HID_PID is not set
 CONFIG_USB_HIDDEV=y
 # CONFIG_RTC_DRV_HID_SENSOR_TIME is not set
-#CONFIG_HID_UCLOGIC is not set
 # CONFIG_HID_ROCCAT is not set
 # CONFIG_HID_PENMOUNT is not set
 # CONFIG_HID_NTRIG is not set
@@ -298,3 +297,11 @@ CONFIG_USB_HIDDEV=y
 # CONFIG_HID_BETOP_FF is not set
 # CONFIG_HID_APPLEIR is not set
 # CONFIG_HID_UCLOGIC is not set
+
+#
+# Intel(R) Ethernet Controller XL710 Family support
+#
+
+CONFIG_I40E=y
+CONFIG_I40E_DCB=y
+CONFIG_I40EVF=y
