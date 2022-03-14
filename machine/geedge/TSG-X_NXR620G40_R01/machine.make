@@ -1,5 +1,5 @@
 # Copyright (C) 2018 GeedgeNetworks.
-# Geedge/TSG-X
+# Geedge/TSG-X_NXR620G40_R01
 
 ONIE_ARCH ?= x86_64
 SWITCH_ASIC_VENDOR = none

@@ -1,5 +1,5 @@
 ================================================
-Installing ONIE on GEEDGENETWORKS TSG-X Series
+Installing ONIE on GEEDGENETWORKS TSG-X_NXR620G40_R01 Series
 ================================================
 
 Cross-Compiling ONIE
@@ -8,28 +8,28 @@ Cross-Compiling ONIE
 Change directories to ``build-config`` to compile ONIE.
 
 To compile ONIE first change directories to ``build-config`` and then
-type ``"make MACHINEROOT=../machine/geedge  MACHINE=TSG-X all"``.
+type ``"make MACHINEROOT=../machine/geedge  MACHINE=TSG-X_NXR620G40_R01 all"``.
 For example::
 
   $ cd build-config
-  $ make -j4 MACHINEROOT=../machine/geedge  MACHINE=TSG-X all
+  $ make -j4 MACHINEROOT=../machine/geedge  MACHINE=TSG-X_NXR620G40_R01 all
 
 When complete, the ONIE binaries are located in
 ``build/images``::
 
--rw-r--r-- 8569516 Jul 19 10:50 TSG-X-r0.initrd
--rw-r--r-- 3479872 Jul 19 10:47 TSG-X-r0.vmlinuz
--rw-r--r-- 29753344 Jul 19 10:51 onie-recovery-x86_64-TSG-X-r0.iso
--rw-r--r-- 12105591 Jul 19 10:50 onie-updater-x86_64-TSG-X-r0
+-rw-r--r-- 8569516 Jul 19 10:50 TSG-X_NXR620G40_R01-r0.initrd
+-rw-r--r-- 3479872 Jul 19 10:47 TSG-X_NXR620G40_R01-r0.vmlinuz
+-rw-r--r-- 29753344 Jul 19 10:51 onie-recovery-x86_64-TSG-X_NXR620G40_R01-r0.iso
+-rw-r--r-- 12105591 Jul 19 10:50 onie-updater-x86_64-TSG-X_NXR620G40_R01-r0
 
-TSG-X-r0.vmlinuz -- This is the ONIE kernel image
+TSG-X_NXR620G40_R01-r0.vmlinuz -- This is the ONIE kernel image
 
-TSG-X-r0.initrd  -- This is the ONIE initramfs (filesystem)
+TSG-X_NXR620G40_R01-r0.initrd  -- This is the ONIE initramfs (filesystem)
 
-onie-updater-x86_64-TSG-X-r0 -- This is the ONIE self-update
+onie-updater-x86_64-TSG-X_NXR620G40_R01-r0 -- This is the ONIE self-update
 image. This image is a self-extracting archive used for installing ONIE.
 
-onie-recovery-x86_64-TSG-X-r0.iso -- This is the ONIE recovery
+onie-recovery-x86_64-TSG-X_NXR620G40_R01-r0.iso -- This is the ONIE recovery
 ISO image. This image can be used to create a bootable USB memory stick
 for installing/recovery ONIE.
 
