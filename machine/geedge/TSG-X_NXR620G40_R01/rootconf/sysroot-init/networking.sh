@@ -19,43 +19,59 @@ platform_networking="/lib/onie/networking-platform"
 [ -r "$platform_networking" ] && . "$platform_networking"
 
 config_ethmgmt() {
-    onie_env_array=$(cat /mnt/onie-boot/grub/grubenv | grep ONIE_NETWORK_ | grep -v "\#")
-    onie_env_num=$(cat /mnt/onie-boot/grub/grubenv | grep ONIE_NETWORK_ | grep -v "\#" | wc -l)
+    base_option_array=$(cat /mnt/onie-boot/grub/grubenv | grep onie_network_option_ | grep -v "\#" | grep -v "onie_network_option_bond_")
+    bond_option_array=$(cat /mnt/onie-boot/grub/grubenv | grep onie_network_option_bond_ | grep -v "\#")
+    bonding_masters=$(cat /mnt/onie-boot/grub/grubenv | grep onie_network_option_bond_bonding_masters | grep -v "\#")
 
-    if [ "$onie_env_num" == 0 ]; then
-        log_info_msg "Please use onie-netcfg-set config ONIE network !!!"
-        return 0
-    fi
-
-    for onie_env in $onie_env_array; do
-        cmd_run export $onie_env
+    for base_args in $base_option_array; do
+        cmd_run export $base_args
     done
 
-    dump_env=$(env | grep ONIE_NETWORK | sort)
-    log_console_msg "$dump_env"
+    env | sort
 
-    if [ -n "ONIE_NETWORK_BOND_SLAVES" ]; then
-        cmd_run ifconfig bond0 down
-        #cmd_run echo +bond0 >/sys/class/net/bonding_masters
-        cmd_run echo active-backup >/sys/class/net/bond0/bonding/mode
-        cmd_run echo 100 >/sys/class/net/bond0/bonding/miimon
+    if [ -n "$bonding_masters" ]; then
+        bonding_masters_value=$(echo $bonding_masters | grep onie_network_option_bond_ | awk -F '=' '{print $2}')
+        cmd_run ifconfig $bonding_masters_value down
 
-        interface_array=$(echo $ONIE_NETWORK_BOND_SLAVES | tr ',' ' ')
-        for eth in $interface_array; do
-            cmd_run ifconfig $eth down
-            cmd_run echo +$eth >/sys/class/net/bond0/bonding/slaves
-            cmd_run ifconfig $eth up
+        for bond_args in $bond_option_array; do
+
+            if [ "$bond_args" = "$bonding_masters" ]; then
+                continue
+            fi
+
+            option_name=$(echo $bond_args | grep onie_network_option_bond_ | awk -F '=' '{print $1}' | awk -F "onie_network_option_bond_" '{print $2}' | tr 'A-Z' 'a-z')
+            option_value=$(echo $bond_args | grep onie_network_option_bond_ | awk -F '=' '{print $2}')
+
+            echo "Bond Param: $option_name, $option_value"
+            
+            if [ -n "$option_name" ] || [ -n "$option_value" ]; then
+
+                if [ "$option_name" = "active_slave" ] || [ "$option_name" = "slave" ]; then
+                    eth=$(echo $option_value | tr '+' ' ')
+                    cmd_run ifconfig $eth down
+                fi
+
+                cmd_run echo $option_value >/sys/class/net/bond0/bonding/$option_name
+                echo "echo $option_value >/sys/class/net/bond0/bonding/$option_name"
+                log_console_msg "echo $option_value >/sys/class/net/bond0/bonding/$option_name"
+
+                if [ "$option_name" = "active_slave" ] || [ "$option_name" = "slave" ]; then
+                    eth=$(echo $option_value | tr '+' ' ')
+                    cmd_run ifconfig $eth up
+                fi
+
+            fi
         done
     fi
 
-    if [ -n "ONIE_NETWORK_INTERFACE" ] || [ -n "ONIE_NETWORK_ADDRESS" ] || [ -n "ONIE_NETWORK_MASK" ]; then
-        cmd_run ifconfig $ONIE_NETWORK_INTERFACE $ONIE_NETWORK_ADDRESS netmask $ONIE_NETWORK_MASK up
-        log_console_msg "$ONIE_NETWORK_INTERFACE: Using static IP config: ip=$ONIE_NETWORK_ADDRESS"
+    if [ -n "$onie_network_option_interface" ] && [ -n "$onie_network_option_address" ] && [ -n "$onie_network_option_netmask" ]; then
+        cmd_run ifconfig $onie_network_option_interface $onie_network_option_address netmask $onie_network_option_netmask up
+        log_console_msg "$onie_network_option_interface: Using static IP config: ip=$onie_network_option_address, netmask=$onie_network_option_netmask"
     fi
 
-    if [ -z "$ONIE_NETWORK_GATEWAY" ]; then
-        cmd_run route add default gw $ONIE_NETWORK_GATEWAY
-        log_console_msg "Add default gateway $ONIE_NETWORK_INTERFACE"
+    if [ -n "$onie_network_option_gateway" ]; then
+        cmd_run route add default gw $onie_network_option_gateway
+        log_console_msg "Add default gateway $onie_network_option_gateway"
     fi
 
     return 0
