@@ -2,6 +2,45 @@
 
 bond_support_params="bonding_masters active_slave ad_actor_sys_prio ad_actor_system ad_select ad_user_port_key all_slaves_active arp_interval arp_ip_target arp_validate arp_all_targets downdelay fail_over_mac lacp_rate max_bonds miimon min_links mode num_grat_arp num_unsol_na packets_per_slave peer_notif_delay primary primary_reselect tlb_dynamic_lb updelay use_carrier xmit_hash_policy resend_igmp lp_interval"
 
+#function usage() {
+#    echo "Usage: $(basename $0) [OPTION] [VARIABLE]..."
+#    echo ""
+#    cat <<EOF
+#Configuring the IPv4 Network of the ONIE Management Port.
+#[Option]:
+#    clear                       -- clear all config
+#    clear     \$option           -- clear the option
+#    interface \$value            -- config interface
+#    address   \$value            -- config address
+#    netmask   \$value            -- config netmask
+#    gateway   \$value            -- config gateway
+#    bond      \$param \$value     -- config bond parameters
+#                                 more bond parameters see
+#                                 https://www.kernel.org/doc/Documentation/networking/bonding.txt
+#
+#    Example: onie-netcfg-set clear
+#
+#             onie-netcfg-set interface eth2
+#             onie-netcfg-set address 192.168.100.100
+#             onie-netcfg-set netmask 255.255.255.0
+#             onie-netcfg-set gateway 192.168.100.1
+#
+#    Example: onie-netcfg-set clear
+#
+#             onie-netcfg-set bond bonding_masters bond0
+#             onie-netcfg-set bond slave +eth2
+#             onie-netcfg-set bond slave +eth3
+#             onie-netcfg-set bond mode active-backup
+#             onie-netcfg-set bond miimon 100
+#             ...
+#
+#             onie-netcfg-set interface bond0
+#             onie-netcfg-set address 192.168.100.100
+#             onie-netcfg-set netmask 255.255.255.0
+#             onie-netcfg-set gateway 192.168.100.1
+#EOF
+#}
+
 function usage() {
     echo "Usage: $(basename $0) [OPTION] [VARIABLE]..."
     echo ""
@@ -14,9 +53,6 @@ Configuring the IPv4 Network of the ONIE Management Port.
     address   \$value            -- config address
     netmask   \$value            -- config netmask
     gateway   \$value            -- config gateway
-    bond      \$param \$value     -- config bond parameters
-                                 more bond parameters see
-                                 https://www.kernel.org/doc/Documentation/networking/bonding.txt
 
     Example: onie-netcfg-set clear
 
@@ -25,19 +61,6 @@ Configuring the IPv4 Network of the ONIE Management Port.
              onie-netcfg-set netmask 255.255.255.0
              onie-netcfg-set gateway 192.168.100.1
 
-    Example: onie-netcfg-set clear
-
-             onie-netcfg-set bond bonding_masters bond0
-             onie-netcfg-set bond slave +eth2
-             onie-netcfg-set bond slave +eth3
-             onie-netcfg-set bond mode active-backup
-             onie-netcfg-set bond miimon 100
-             ...
-
-             onie-netcfg-set interface bond0
-             onie-netcfg-set address 192.168.100.100
-             onie-netcfg-set netmask 255.255.255.0
-             onie-netcfg-set gateway 192.168.100.1
 EOF
 }
 
@@ -209,12 +232,12 @@ elif [ "$option" = "$gateway" ]; then
     if [ "$ret" == 1 ]; then
         exit 1
     fi
-elif [ "$option" = "$bond" ]; then
-    config_bond $1 $2 $3 $4
-    ret=$?
-    if [ "$ret" == 1 ]; then
-        exit 1
-    fi
+#elif [ "$option" = "$bond" ]; then
+#    config_bond $1 $2 $3 $4
+#    ret=$?
+#    if [ "$ret" == 1 ]; then
+#        exit 1
+#    fi
 else
     usage
 fi
