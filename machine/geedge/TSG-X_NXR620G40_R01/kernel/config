@@ -3,6 +3,7 @@
 #
 
 # CONFIG_ACER_WMI is not set
+CONFIG_VGASTATE=y
 CONFIG_ACPI_VIDEO=y
 CONFIG_ACPI_WMI=y
 # CONFIG_APPLE_GMUX is not set
@@ -126,7 +127,7 @@ CONFIG_FB_NOTIFY=y
 # CONFIG_FB_S1D13XXX is not set
 # CONFIG_FB_S3 is not set
 # CONFIG_FB_SAVAGE is not set
-# CONFIG_FB_SIMPLE is not set
+CONFIG_FB_SIMPLE=y
 # CONFIG_FB_SIS is not set
 # CONFIG_FB_SM501 is not set
 # CONFIG_FB_SM712 is not set
@@ -141,7 +142,7 @@ CONFIG_FB_TILEBLITTING=y
 # CONFIG_FB_UDL is not set
 # CONFIG_FB_UVESA is not set
 CONFIG_FB_VESA=y
-# CONFIG_FB_VGA16 is not set
+CONFIG_FB_VGA16=y
 # CONFIG_FB_VIA is not set
 # CONFIG_FB_VIRTUAL is not set
 # CONFIG_FB_VOODOO1 is not set
