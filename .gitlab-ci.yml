@@ -37,9 +37,9 @@ release-TSG-7400-ONIE:
     paths:
       - ${CI_PROJECT_DIR}/*.tar.gz
   only:
-    - tags
-  except:
     - /^rel-.*$/i
+    - /^dev-.*$/i
+    - tags
 
 release-TSG-9140-ONIE:
   stage: build
@@ -55,9 +55,9 @@ release-TSG-9140-ONIE:
     paths:
       - ${CI_PROJECT_DIR}/*.tar.gz
   only:
-    - tags
-  except:
     - /^rel-.*$/i
+    - /^dev-.*$/i
+    - tags
 
 release-TSG-X_NXR620G40_R01:
   stage: build
@@ -73,6 +73,6 @@ release-TSG-X_NXR620G40_R01:
     paths:
       - ${CI_PROJECT_DIR}/*.tar.gz
   only:
-    - tags
-  except:
     - /^rel-.*$/i
+    - /^dev-.*$/i
+    - tags

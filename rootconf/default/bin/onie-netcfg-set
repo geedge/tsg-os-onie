@@ -202,6 +202,8 @@ bond="bond"
 
 option=$1
 
+echo "# Automatically generated onie_network_option_xxx; DO NOT EDIT" >>/mnt/onie-boot/grub/grubenv
+
 if [ "$option" = "$clear" ]; then
     clear_config $1 $2 $3
     ret=$?
