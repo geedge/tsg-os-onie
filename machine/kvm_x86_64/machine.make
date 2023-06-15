@@ -114,6 +114,15 @@ endif
 
 
 SERIAL_CONSOLE_ENABLE = no
+# for nomodeset
+include $(MACHINEDIR)/rootconf/grub-machine.make
+
+# for 5.4.237
+ONIE_MIRROR	= https://cdn.kernel.org/pub/linux/kernel/v5.x
+
+# Linux kernel version
+LINUX_VERSION = 5.4
+LINUX_MINOR_VERSION = 247
 
 #-------------------------------------------------------------------------------
 #
