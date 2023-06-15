@@ -64,19 +64,19 @@ SKIP_ETHMGMT_MACS = yes
 #  that this provides.
 # The kernel/config-insecure file is provided as
 #  an example.
-SECURE_BOOT_ENABLE = yes
+SECURE_BOOT_ENABLE = no
 
 # Enable extended secure boot:
 #  Activates - ONIE password
-SECURE_BOOT_EXT = yes
+SECURE_BOOT_EXT = no
 
 # Enable GRUB verification of files and passwords
 # Requires secure boot
-SECURE_GRUB = yes
+SECURE_GRUB = no
 
 # Define the makefile with security settings, to
 # provide the option of using another file with different settings.
-MACHINE_SECURITY_MAKEFILE ?= $(MACHINEDIR)/machine-security.make
+#MACHINE_SECURITY_MAKEFILE ?= $(MACHINEDIR)/machine-security.make
 
 # Console parameters can be defined here (default values are in
 # build-config/arch/x86_64.make).
@@ -113,7 +113,7 @@ ifeq ($(SECURE_BOOT_EXT),yes)
 endif
 
 
-
+SERIAL_CONSOLE_ENABLE = no
 
 #-------------------------------------------------------------------------------
 #
