@@ -1,0 +1,245 @@
+#!/bin/sh
+
+bond_support_params="bonding_masters active_slave ad_actor_sys_prio ad_actor_system ad_select ad_user_port_key all_slaves_active arp_interval arp_ip_target arp_validate arp_all_targets downdelay fail_over_mac lacp_rate max_bonds miimon min_links mode num_grat_arp num_unsol_na packets_per_slave peer_notif_delay primary primary_reselect tlb_dynamic_lb updelay use_carrier xmit_hash_policy resend_igmp lp_interval"
+
+#function usage() {
+#    echo "Usage: $(basename $0) [OPTION] [VARIABLE]..."
+#    echo ""
+#    cat <<EOF
+#Configuring the IPv4 Network of the ONIE Management Port.
+#[Option]:
+#    clear                       -- clear all config
+#    clear     \$option           -- clear the option
+#    interface \$value            -- config interface
+#    address   \$value            -- config address
+#    netmask   \$value            -- config netmask
+#    gateway   \$value            -- config gateway
+#    bond      \$param \$value     -- config bond parameters
+#                                 more bond parameters see
+#                                 https://www.kernel.org/doc/Documentation/networking/bonding.txt
+#
+#    Example: onie-netcfg-set clear
+#
+#             onie-netcfg-set interface eth2
+#             onie-netcfg-set address 192.168.100.100
+#             onie-netcfg-set netmask 255.255.255.0
+#             onie-netcfg-set gateway 192.168.100.1
+#
+#    Example: onie-netcfg-set clear
+#
+#             onie-netcfg-set bond bonding_masters bond0
+#             onie-netcfg-set bond slave +eth2
+#             onie-netcfg-set bond slave +eth3
+#             onie-netcfg-set bond mode active-backup
+#             onie-netcfg-set bond miimon 100
+#             ...
+#
+#             onie-netcfg-set interface bond0
+#             onie-netcfg-set address 192.168.100.100
+#             onie-netcfg-set netmask 255.255.255.0
+#             onie-netcfg-set gateway 192.168.100.1
+#EOF
+#}
+
+function usage() {
+    echo "Usage: $(basename $0) [OPTION] [VARIABLE]..."
+    echo ""
+    cat <<EOF
+Configuring the IPv4 Network of the ONIE Management Port.
+[Option]:
+    clear                       -- clear all config
+    clear     \$option           -- clear the option
+    interface \$value            -- config interface
+    address   \$value            -- config address
+    netmask   \$value            -- config netmask
+    gateway   \$value            -- config gateway
+
+    Example: onie-netcfg-set clear
+
+             onie-netcfg-set interface eth2
+             onie-netcfg-set address 192.168.100.100
+             onie-netcfg-set netmask 255.255.255.0
+             onie-netcfg-set gateway 192.168.100.1
+
+EOF
+}
+
+function check_ipv4_foramt() {
+    IP=$1
+
+    VALID_CHECK_STEP1=$(echo $IP | awk -F . '$1<=255 && $2<=255 && $3<=255 && $4<=255 {print "yes"}')
+    VALID_CHECK_STEP2=$(echo $IP | grep -E "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$")
+    if [ ${VALID_CHECK_STEP1:-no} == "yes" ] && [ -n "${VALID_CHECK_STEP2}" ]; then
+        return 0
+    else
+        echo "Invalid IPv4 Address Format: $IP."
+        return 1
+    fi
+}
+
+function check_interface() {
+    eth=$1
+
+    if ifconfig $eth >/dev/null; then
+        return 0
+    else
+        echo "Network Interface $eth not exist."
+        return 1
+    fi
+}
+
+function clear_config() {
+    if [ -n "$3" ]; then
+        echo "Invalid options args: $1 $2 $3"
+        return 1
+    fi
+
+    if [ -n "$2" ]; then
+        if [ -r /mnt/onie-boot/grub/grubenv ]; then
+            del_opt="/onie_network_option_$2/d"
+            sed -i "$del_opt" /mnt/onie-boot/grub/grubenv
+        fi
+    else
+        if [ -r /mnt/onie-boot/grub/grubenv ]; then
+            sed -i "/onie_network_option_/d" /mnt/onie-boot/grub/grubenv
+        fi
+    fi
+
+    return 0
+}
+
+function config_interface() {
+    if [ -n "$3" ] || [ -z "$2" ]; then
+        echo "Invalid options args: $1 $2 $3"
+        return 1
+    fi
+
+    check_interface $2
+    ret=$?
+    if [ "$ret" == 1 ]; then
+        return 1
+    fi
+
+    echo "onie_network_option_interface=$2" >>/mnt/onie-boot/grub/grubenv
+    return 0
+}
+
+function config_address() {
+    if [ -n "$3" ] || [ -z "$2" ]; then
+        echo "Invalid options args: $1 $2 $3"
+        return 1
+    fi
+
+    check_ipv4_foramt $2
+    ret=$?
+    if [ "$ret" == 1 ]; then
+        return 1
+    fi
+
+    echo "onie_network_option_address=$2" >>/mnt/onie-boot/grub/grubenv
+    return 0
+}
+
+function config_netmask() {
+    if [ -n "$3" ] || [ -z "$2" ]; then
+        echo "Invalid options args: $1 $2 $3"
+        return 1
+    fi
+
+    check_ipv4_foramt $2
+    ret=$?
+    if [ "$ret" == 1 ]; then
+        return 1
+    fi
+
+    echo "onie_network_option_netmask=$2" >>/mnt/onie-boot/grub/grubenv
+    return 0
+}
+
+function config_gateway() {
+    if [ -n "$3" ] || [ -z "$2" ]; then
+        echo "Invalid options args: $1 $2 $3"
+        return 1
+    fi
+
+    check_ipv4_foramt $2
+    ret=$?
+    if [ "$ret" == 1 ]; then
+        return 1
+    fi
+
+    echo "onie_network_option_gateway=$2" >>/mnt/onie-boot/grub/grubenv
+    return 0
+}
+
+function config_bond() {
+    if [ -n "$4" ] || [ -z "$2" ] || [ -z "$3" ]; then
+        echo "Invalid options args: $1 $2 $3 $4"
+        return 1
+    fi
+
+    # bond_param_is_invalid=0
+    # for param in $bond_support_params; do
+    #     if [ "$param" = "$2" ]; then
+    #         bond_param_is_invalid=1
+    #     fi
+    # done
+    # if [ "$bond_param_is_invalid" == 0 ]; then
+    #     echo "Invalid bond option args: $2"
+    #     return 1
+    # fi
+
+    echo "onie_network_option_bond_$2=$3" >>/mnt/onie-boot/grub/grubenv
+    return 0
+}
+
+clear="clear"
+interface="interface"
+address="address"
+netmask="netmask"
+gateway="gateway"
+bond="bond"
+
+option=$1
+
+echo "# Automatically generated onie_network_option_xxx; DO NOT EDIT" >>/mnt/onie-boot/grub/grubenv
+
+if [ "$option" = "$clear" ]; then
+    clear_config $1 $2 $3
+    ret=$?
+    if [ "$ret" == 1 ]; then
+        exit 1
+    fi
+elif [ "$option" = "$interface" ]; then
+    config_interface $1 $2 $3
+    ret=$?
+    if [ "$ret" == 1 ]; then
+        exit 1
+    fi
+elif [ "$option" = "$address" ]; then
+    config_address $1 $2 $3
+    ret=$?
+    if [ "$ret" == 1 ]; then
+        exit 1
+    fi
+elif [ "$option" = "$netmask" ]; then
+    config_netmask $1 $2 $3
+    ret=$?
+    if [ "$ret" == 1 ]; then
+        exit 1
+    fi
+elif [ "$option" = "$gateway" ]; then
+    config_gateway $1 $2 $3
+    ret=$?
+    if [ "$ret" == 1 ]; then
+        exit 1
+    fi
+#elif [ "$option" = "$bond" ]; then
+#    config_bond $1 $2 $3 $4
+#    ret=$?
+#    if [ "$ret" == 1 ]; then
+#        exit 1
+#    fi
+else
+    usage
+fi
