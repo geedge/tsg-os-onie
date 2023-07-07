@@ -1,0 +1,54 @@
+stages:
+  - build
+  - upload
+
+variables:
+  GIT_STRATEGY: "clone"
+
+build-X86_64_COTS:
+  image: "git.mesalab.cn:7443/mesa_platform/build-env:due_image_for_onie"
+  stage: build
+  variables:
+    MACHINE_NAME: X86_64_COTS
+    IMAGE_NAME: ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz
+  script:
+    - env | sort
+    - git config --global user.email "build@example.com"
+    - git config --global user.name "build"
+    - chown -R oniebuild:oniebuild ${CI_PROJECT_DIR}
+    - ls -ahl ${CI_PROJECT_DIR}
+    - su oniebuild -c "whoami"
+    - whoami
+    - cd ${CI_PROJECT_DIR}/build-config
+    - su oniebuild -c "make -j4 MACHINEROOT=../machine/geedge MACHINE=${MACHINE_NAME} ONIE_RELEASE_TAG=${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA} all"
+    - ls -ahl ${CI_PROJECT_DIR}/build/images/
+    - cd ${CI_PROJECT_DIR}/build/
+    - tar -zcvf ${CI_PROJECT_DIR}/${IMAGE_NAME} images/
+    - ls -ahl ${CI_PROJECT_DIR}/
+  artifacts:
+    name: "TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz"
+    paths:
+      - ${CI_PROJECT_DIR}/*.tar.gz
+  only:
+    - /^rel-.*$/i
+    - /^dev-.*$/i
+    - tags
+  tags:
+    - internal-runner
+
+upload-X86_64_COTS:
+  image: "git.mesalab.cn:7443/mesa_platform/build-env:master"
+  stage: upload
+  variables:
+    PULP3_FILE_REPO_NAME: onie-os-images-release
+    PULP3_FILE_DIST_NAME: onie-os-images-release
+    FILE_REPO_PATH: install/release/onie-os-images
+  script:
+    - ls ${CI_PROJECT_DIR}/*.tar.gz
+    - python3 /root/file_upload_tools_to_share_repo.py ${FILE_REPO_PATH} ${CI_PROJECT_DIR}/*.tar.gz
+  only:
+    - /^rel-.*$/i
+    - /^dev-.*$/i
+    - tags
+  tags:
+    - share
