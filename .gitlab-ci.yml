@@ -5,16 +5,17 @@ stages:
 variables:
   GIT_STRATEGY: "clone"
 
-build-X86_64_COTS:
+.build:
   image: "git.mesalab.cn:7443/mesa_platform/build-env:due_image_for_onie"
   stage: build
   variables:
-    MACHINE_NAME: X86_64_COTS
-    IMAGE_NAME: ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz
+      IMAGE_NAME: ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz
   script:
     - env | sort
+    - git config --global safe.directory '*'
     - git config --global user.email "build@example.com"
     - git config --global user.name "build"
+    - export CT_ALLOW_BUILD_AS_ROOT_SURE=1
     - chown -R oniebuild:oniebuild ${CI_PROJECT_DIR}
     - ls -ahl ${CI_PROJECT_DIR}
     - su oniebuild -c "whoami"
@@ -26,7 +27,7 @@ build-X86_64_COTS:
     - tar -zcvf ${CI_PROJECT_DIR}/${IMAGE_NAME} images/
     - ls -ahl ${CI_PROJECT_DIR}/
   artifacts:
-    name: "TSG-ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz"
+    name: "${IMAGE_NAME}"
     paths:
       - ${CI_PROJECT_DIR}/*.tar.gz
   only:
@@ -34,21 +35,36 @@ build-X86_64_COTS:
     - /^dev-.*$/i
     - tags
   tags:
-    - internal-runner
+    - share
 
-upload-X86_64_COTS:
+
+.upload:
   image: "git.mesalab.cn:7443/mesa_platform/build-env:master"
   stage: upload
   variables:
     PULP3_FILE_REPO_NAME: onie-os-images-release
     PULP3_FILE_DIST_NAME: onie-os-images-release
     FILE_REPO_PATH: install/release/onie-os-images
+    IMAGE_NAME: ONIE-${MACHINE_NAME}-${CI_COMMIT_TAG}-${CI_COMMIT_SHORT_SHA}.tar.gz
   script:
     - ls ${CI_PROJECT_DIR}/*.tar.gz
-    - python3 /root/file_upload_tools_to_share_repo.py ${FILE_REPO_PATH} ${CI_PROJECT_DIR}/*.tar.gz
+    - python3 /root/file_upload_tools_to_share_repo.py ${FILE_REPO_PATH} ${CI_PROJECT_DIR}/${IMAGE_NAME}
   only:
     - /^rel-.*$/i
     - /^dev-.*$/i
     - tags
   tags:
     - share
+
+
+build:
+  extends: .build
+  parallel:
+    matrix:
+      - MACHINE_NAME: ["X86_64_COTS","aarch64_COTS"]
+
+upload:
+  extends: .upload
+  parallel:
+    matrix:
+      - MACHINE_NAME: ["X86_64_COTS","aarch64_COTS"]
