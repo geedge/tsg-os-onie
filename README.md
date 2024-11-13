@@ -7,4 +7,4 @@
 
 不同分支相对于onie的修改目的：(这个得逐个commit往前看了，比较复杂。这里只看最后的输出文件)
 * dev-23.06分支，为三种设备提供onie：7400-MCN-P01R01、9000-NPB-P01R01、TSG-X_NXR620G40_R01
-* dev-24.12分支，为两种比较通用的设备提供onie：X86_64_COTS、aarch64_COTS。
+* dev-24.12分支，为两种比较通用的设备提供onie：X86_64_COTS、AArch64_COTS。
