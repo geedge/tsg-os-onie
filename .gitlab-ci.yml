@@ -61,10 +61,10 @@ build:
   extends: .build
   parallel:
     matrix:
-      - MACHINE_NAME: ["X86_64_COTS","AArch64_COTS"]
+      - MACHINE_NAME: ["x86_64_COTS","AArch64_COTS"]
 
 upload:
   extends: .upload
   parallel:
     matrix:
-      - MACHINE_NAME: ["X86_64_COTS","AArch64_COTS"]
+      - MACHINE_NAME: ["x86_64_COTS","AArch64_COTS"]
